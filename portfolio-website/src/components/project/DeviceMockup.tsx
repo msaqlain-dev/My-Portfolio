@@ -3,6 +3,8 @@ import type { ReactNode } from 'react';
 interface DeviceMockupProps {
   type: 'desktop' | 'mobile';
   children: ReactNode;
+  /** Render a larger phone (modal view). Desktop scales naturally with container. */
+  large?: boolean;
 }
 
 function LaptopMockup({ children }: { children: ReactNode }) {
@@ -76,11 +78,11 @@ function LaptopMockup({ children }: { children: ReactNode }) {
   );
 }
 
-function PhoneMockup({ children }: { children: ReactNode }) {
+function PhoneMockup({ children, large }: { children: ReactNode; large?: boolean }) {
   return (
     <div
       className="relative mx-auto select-none"
-      style={{ width: '200px' }}
+      style={{ width: large ? '260px' : '200px' }}
     >
       {/* ── Phone body ───────────────────────────────────────────── */}
       <div
@@ -199,7 +201,7 @@ function PhoneMockup({ children }: { children: ReactNode }) {
   );
 }
 
-export default function DeviceMockup({ type, children }: DeviceMockupProps) {
-  if (type === 'mobile') return <PhoneMockup>{children}</PhoneMockup>;
+export default function DeviceMockup({ type, children, large }: DeviceMockupProps) {
+  if (type === 'mobile') return <PhoneMockup large={large}>{children}</PhoneMockup>;
   return <LaptopMockup>{children}</LaptopMockup>;
 }

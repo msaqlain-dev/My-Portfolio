@@ -6,6 +6,9 @@ interface ScreenshotSliderProps {
   screenshots: string[];
   title: string;
   category: 'web' | 'mobile';
+  /** Controlled mode — when provided the parent owns the active index */
+  controlledIndex?: number;
+  onControlledChange?: (index: number, direction: number) => void;
 }
 
 const variants = {
@@ -45,17 +48,30 @@ function Placeholder({ title, category }: { title: string; category: 'web' | 'mo
   );
 }
 
-export default function ScreenshotSlider({ screenshots, title, category }: ScreenshotSliderProps) {
-  const [current, setCurrent] = useState(0);
+export default function ScreenshotSlider({
+  screenshots,
+  title,
+  category,
+  controlledIndex,
+  onControlledChange,
+}: ScreenshotSliderProps) {
+  const [internalCurrent, setInternalCurrent] = useState(0);
   const [direction, setDirection] = useState(0);
   const [errors, setErrors] = useState<Record<number, boolean>>({});
 
+  const isControlled = controlledIndex !== undefined;
+  const current = isControlled ? controlledIndex : internalCurrent;
   const count = screenshots.length;
 
   const paginate = useCallback((dir: number) => {
+    const next = (current + dir + count) % count;
     setDirection(dir);
-    setCurrent((prev) => (prev + dir + count) % count);
-  }, [count]);
+    if (isControlled) {
+      onControlledChange?.(next, dir);
+    } else {
+      setInternalCurrent(next);
+    }
+  }, [current, count, isControlled, onControlledChange]);
 
   const hasError = errors[current];
 
@@ -117,7 +133,12 @@ export default function ScreenshotSlider({ screenshots, title, category }: Scree
             {Array.from({ length: count }).map((_, i) => (
               <motion.button
                 key={i}
-                onClick={() => { setDirection(i > current ? 1 : -1); setCurrent(i); }}
+                onClick={() => {
+                  const dir = i > current ? 1 : -1;
+                  setDirection(dir);
+                  if (isControlled) { onControlledChange?.(i, dir); }
+                  else { setInternalCurrent(i); }
+                }}
                 className={`rounded-full transition-all duration-300 ${
                   i === current
                     ? 'w-5 h-1.5 bg-white'
