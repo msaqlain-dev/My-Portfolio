@@ -10,7 +10,7 @@ import Contact         from './components/sections/Contact';
 
 export default function App() {
   return (
-    <div className="min-h-screen bg-[#07070e] text-slate-100 font-sans overflow-x-hidden">
+    <div className="min-h-screen bg-bg-primary text-slate-100 font-sans overflow-x-hidden">
       {/* Scroll progress bar */}
       <ScrollProgress />
 
